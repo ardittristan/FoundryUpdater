@@ -32,7 +32,7 @@ jobs:
           echo "::set-output name=min-core::$(node ./.github/workflows/get-min-core.js)"
           echo "::set-output name=version::$(node ./.github/workflows/get-version.js)"
       - name: Trigger Deploy Workflow
-        uses: benc-uk/workflow_dispatch@v1
+        uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: Deploy To Foundry
           repo: ardittristan/FoundryUpdater
