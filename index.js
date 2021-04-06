@@ -11,6 +11,7 @@ let timeout = setTimeout(() => {
 (async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
+  page.setDefaultNavigationTimeout(90000);
 
   await page.goto("https://foundryvtt.com/admin/", { waitUntil: "domcontentloaded" });
 
@@ -18,8 +19,10 @@ let timeout = setTimeout(() => {
   if (page.url().includes("login")) {
     await page.type("#id_username", process.env.FOUNDRY_USER);
     await page.type("#id_password", process.env.FOUNDRY_PWD);
-    await page.click('input[type="submit"]');
-    await page.waitForNavigation({ waitUntil: "domcontentloaded" });
+    await Promise.all([
+      page.click('input[type="submit"]'), //
+      page.waitForNavigation({ waitUntil: "domcontentloaded" }),
+    ]);
   }
 
   // go to packages screen
@@ -27,8 +30,10 @@ let timeout = setTimeout(() => {
 
   await Cheeky.some(await page.$$(".results .field-name a"), async (el) => {
     if ((await el.evaluate((node) => node.innerText)) === process.env.MODULE_ID) {
-      await el.click();
-      await page.waitForNavigation({ waitUntil: "domcontentloaded" });
+      await Promise.all([
+        el.click(), //
+        page.waitForNavigation({ waitUntil: "domcontentloaded" }),
+      ]);
       return true;
     }
   });
@@ -40,8 +45,10 @@ let timeout = setTimeout(() => {
   await page.type(selector + 'input[id$="-required_core_version"]', proces.env.MODULE_MIN_CORE);
   await page.type(selector + 'input[id$="-compatible_core_version"]', process.env.MODULE_COMP_CORE);
 
-  await page.click('input[type="submit"][name="_save"]');
-  await page.waitForNavigation({ waitUntil: "domcontentloaded" });
+  await Promise.all([
+    page.click('input[type="submit"][name="_save"]'), //
+    page.waitForNavigation({ waitUntil: "domcontentloaded" }),
+  ]);
 
   await browser.close();
   clearTimeout(timeout);
