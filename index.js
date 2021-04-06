@@ -1,7 +1,12 @@
+import Cheeky from "cheeky-async";
 import puppeteer from "puppeteer-extra";
 import BlockResourcesPlugin from "puppeteer-extra-plugin-block-resources";
 
-puppeteer.use(BlockResourcesPlugin({ blockedTypes: new Set(["stylesheet", "font"]) }));
+puppeteer.use(BlockResourcesPlugin({ blockedTypes: new Set(["stylesheet", "font", "image"]) }));
+
+let timeout = setTimeout(() => {
+  process.exit(1);
+}, 300000);
 
 (async () => {
   const browser = await puppeteer.launch();
@@ -18,11 +23,10 @@ puppeteer.use(BlockResourcesPlugin({ blockedTypes: new Set(["stylesheet", "font"
   }
 
   // go to packages screen
-  await page.click('tr.model-package a[href="/admin/packages/package/"]');
-  await page.waitForNavigation({ waitUntil: "domcontentloaded" });
+  await page.goto("https://foundryvtt.com/admin/packages/package/", { waitUntil: "domcontentloaded" });
 
-  (await page.$$(".results .field-name a")).some(async (el) => {
-    if (await el.evaluate((node) => node.innerText === process.env.MODULE_ID)) {
+  await Cheeky.some(await page.$$(".results .field-name a"), async (el) => {
+    if ((await el.evaluate((node) => node.innerText)) === process.env.MODULE_ID) {
       await el.click();
       await page.waitForNavigation({ waitUntil: "domcontentloaded" });
       return true;
@@ -37,7 +41,8 @@ puppeteer.use(BlockResourcesPlugin({ blockedTypes: new Set(["stylesheet", "font"
   await page.type(selector + 'input[id$="-compatible_core_version"]', process.env.MODULE_COMP_CORE);
 
   await page.click('input[type="submit"][name="_save"]');
-  await page.waitForNavigation({waitUntil: "domcontentloaded"});
+  await page.waitForNavigation({ waitUntil: "domcontentloaded" });
 
   await browser.close();
+  clearTimeout(timeout);
 })();
