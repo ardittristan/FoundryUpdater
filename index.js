@@ -42,7 +42,7 @@ let timeout = setTimeout(() => {
   await page.type(selector + 'input[id$="-version"]', process.env.MODULE_VERSION);
   await page.type(selector + 'input[id$="-manifest"]', process.env.MODULE_MANIFEST);
   await page.type(selector + 'input[id$="-notes"]', process.env.MODULE_CHANGELOG);
-  await page.type(selector + 'input[id$="-required_core_version"]', proces.env.MODULE_MIN_CORE);
+  await page.type(selector + 'input[id$="-required_core_version"]', process.env.MODULE_MIN_CORE);
   await page.type(selector + 'input[id$="-compatible_core_version"]', process.env.MODULE_COMP_CORE);
 
   await Promise.all([
